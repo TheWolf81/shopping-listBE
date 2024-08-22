@@ -1,60 +1,69 @@
 import {db} from '../database';
-import {PersonUpdate, Person, NewPerson} from '../types';
+import { Result } from '../utils/Result';
+import {UserUpdate, User, NewUser} from '../types';
 
-export async function findPersonById(id: number) {
-  return await db
-    .selectFrom('person')
-    .where('id', '=', id)
-    .selectAll()
-    .executeTakeFirst();
-}
+export class UserRepository{
+  constructor() {}
 
-export async function findPeople(criteria: Partial<Person>) {
-  let query = db.selectFrom('person');
-
-  if (criteria.id) {
-    query = query.where('id', '=', criteria.id); // Kysely is immutable, you must re-assign!
+  async findUserById(id: number) {
+    return await db
+      .selectFrom('user')
+      .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirst();
   }
 
-  if (criteria.first_name) {
-    query = query.where('first_name', '=', criteria.first_name);
+  async findUsers(criteria: Partial<User>) {
+    let query = db.selectFrom('user');
+
+    if (criteria.id) {
+      query = query.where('id', '=', criteria.id); // Kysely is immutable, you must re-assign!
+    }
+
+    if (criteria.nickname) {
+      query = query.where('nickname', '=', criteria.nickname);
+    }
+    return await query.selectAll().execute();
   }
 
-  if (criteria.last_name !== undefined) {
-    query = query.where(
-      'last_name',
-      criteria.last_name === null ? 'is' : '=',
-      criteria.last_name
-    );
+  async  updateUser(id: number, updateWith: UserUpdate) {
+    await db.updateTable('user').set(updateWith).where('id', '=', id).execute();
   }
 
-  if (criteria.gender) {
-    query = query.where('gender', '=', criteria.gender);
+  async createUser(user: NewUser) {
+    var result = await this.findUsers({nickname: user.nickname});
+    if(result.length > 0){
+      return Result.fail(400, 'Nickname already in use');
+    }
+    try {
+      await db
+      .insertInto('user')
+      .values(user)
+      .returningAll()
+      .executeTakeFirstOrThrow();
+      return Result.success('User created successfully');
+    } catch (error: any) {
+      if(error.code === '23505'){
+        return Result.fail(400, 'User already exists');
+     }else {
+        return Result.fail(500, 'Internal Server Error');
+     }
+   }
   }
 
-  if (criteria.created_at) {
-    query = query.where('created_at', '=', criteria.created_at);
+  async deleteUser(id: number) {
+    if(!(await this.findUserById(id))){
+      return Result.fail(400, 'User does not exist');
+    }
+     await db
+      .deleteFrom('user')
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+    return Result.success('User deleted successfully');
   }
 
-  return await query.selectAll().execute();
-}
-
-export async function updatePerson(id: number, updateWith: PersonUpdate) {
-  await db.updateTable('person').set(updateWith).where('id', '=', id).execute();
-}
-
-export async function createPerson(person: NewPerson) {
-  return await db
-    .insertInto('person')
-    .values(person)
-    .returningAll()
-    .executeTakeFirstOrThrow();
-}
-
-export async function deletePerson(id: number) {
-  return await db
-    .deleteFrom('person')
-    .where('id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+  async getAll() {
+    return await db.selectFrom('user').selectAll().execute();
+  }
 }

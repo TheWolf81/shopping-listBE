@@ -1,4 +1,9 @@
 import {NextFunction, Request, Response, Router} from 'express';
+import { celebrate, Joi } from 'celebrate';
+import { UserController } from '../../controller/UserController';
+import { Result } from '../../utils/Result';
+
+const ctrl = new UserController();
 
 const route = Router();
 export default (app: Router) => {
@@ -7,28 +12,66 @@ export default (app: Router) => {
     return res.status(200).json({message: 'Hello World!'});
   });
 
-  /*route.post('/create',
+  route.post('/create',
 
       celebrate({
         body: Joi.object({
-            code: Joi.string().required(),
-            description: Joi.string().optional(),
-            max_length: Joi.number().optional(),
-            max_width: Joi.number().optional()
+            nickname: Joi.string().required(),
+            password: Joi.string().required(),
         })
       }),    async (req: Request, res: Response, next: NextFunction) => {
-        try{
-        const result = await axios.get('http://localhost:3100/api/users/me',{ headers: { Authorization: req.headers.authorization } });
-        if(result.data.role !== 'CampusManager' && result.data.role !== 'SystemAdministrator' ){
-          return res.status(401).send('You are not Authorized');
-        }
-        else{
-          ctrl.createBuilding(req, res, next);
-        }
+      try{
+          const result = await ctrl.createUser(req);
+          return res.status(result.code).send(result.message);
       }catch(e){
         console.log(e);
+        return res.status(400).send('Bad Request');
       }
-      },)*/
+      },);
+
+      route.delete('/delete',
+      celebrate({
+        body: Joi.object({
+            id: Joi.number().required()
+        })
+      }), async (req: Request, res: Response, next: NextFunction) => {
+
+      try{
+          const result = await ctrl.deleteUser(req, res);
+          return res.status(result.code).send(result.message);
+      }catch(e){
+        console.log(e);
+        return res.status(400).send('Bad Request');
+      }
+      });
+
+      route.get('/getAll', async (req: Request, res: Response, next: NextFunction) => {
+        try{
+            const result = await ctrl.getAllUsers();
+            return res.status(result.code).send(result.data);
+        }catch(e){
+          console.log(e);
+          return res.status(400).send('Bad Request');
+        }
+        }
+      );
+
+      route.get('/getById/:id',
+      celebrate({
+        params: Joi.object({
+            id: Joi.number().required()
+        })
+      }), async (req: Request, res: Response, next: NextFunction) => {
+        try{
+            const result = await ctrl.getUserById(req);
+            return res.status(result.code).send(result.data);
+        }catch(e){
+          console.log(e);
+          return res.status(400).send('Bad Request');
+        }
+        }
+      );
+
 
   /*route.put('/edit/:domainId',
       celebrate({
