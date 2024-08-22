@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "shopping_list_be",
   "version": "0.0.0",
   "description": "",
   "main": "build/src/index.js",
@@ -11,18 +11,31 @@
   "keywords": [],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "create": "npx ts-node src/createSchema.ts",
+    "destroy": "npx ts-node src/destroySchema.ts",
     "start": "nodemon",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "prepare": "npm.cmd run compile",
     "pretest": "npm.cmd run compile",
     "posttest": "npm.cmd run lint"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "@types/pg": "^8.11.6",
     "gts": "^5.3.1",
-    "typescript": "^5.4.3",
-    "@types/node": "20.12.7"
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "kysely": "^0.27.4",
+    "pg": "^8.12.0",
+    "ts-node": "^10.9.2"
   }
 }
