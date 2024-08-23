@@ -1,14 +1,23 @@
 import {db} from '../database';
-import { Result } from '../utils/Result';
+import {Result} from '../utils/Result';
 import {UserUpdate, User, NewUser} from '../types';
+import {compare} from 'bcrypt';
 
-export class UserRepository{
+export class UserRepository {
   constructor() {}
 
   async findUserById(id: number) {
     return await db
       .selectFrom('user')
       .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirst();
+  }
+
+  async findUserByNickname(nickname: string) {
+    return await db
+      .selectFrom('user')
+      .where('nickname', '=', nickname)
       .selectAll()
       .executeTakeFirst();
   }
@@ -26,44 +35,48 @@ export class UserRepository{
     return await query.selectAll().execute();
   }
 
-  async  updateUser(id: number, updateWith: UserUpdate) {
+  async updateUser(id: number, updateWith: UserUpdate) {
     await db.updateTable('user').set(updateWith).where('id', '=', id).execute();
   }
 
   async createUser(user: NewUser) {
-    var result = await this.findUsers({nickname: user.nickname});
-    if(result.length > 0){
+    const result = await this.findUsers({nickname: user.nickname});
+    if (result.length > 0) {
       return Result.fail(400, 'Nickname already in use');
     }
     try {
       await db
-      .insertInto('user')
-      .values(user)
-      .returningAll()
-      .executeTakeFirstOrThrow();
+        .insertInto('user')
+        .values(user)
+        .returningAll()
+        .executeTakeFirstOrThrow();
       return Result.success('User created successfully');
     } catch (error: any) {
-      if(error.code === '23505'){
+      if (error.code === '23505') {
         return Result.fail(400, 'User already exists');
-     }else {
+      } else {
         return Result.fail(500, 'Internal Server Error');
-     }
-   }
+      }
+    }
   }
 
   async deleteUser(id: number) {
-    if(!(await this.findUserById(id))){
+    if (!(await this.findUserById(id))) {
       return Result.fail(400, 'User does not exist');
     }
-     await db
-      .deleteFrom('user')
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst();
+    await db.deleteFrom('user').where('id', '=', id).returningAll().execute();
     return Result.success('User deleted successfully');
   }
 
   async getAll() {
     return await db.selectFrom('user').selectAll().execute();
+  }
+
+  async loginUser(user: User) {
+    const result = await this.findUserByNickname(user.nickname);
+    if (result && (await compare(user.password, result.password)))
+      return Result.success('Login successful');
+    else if (result) return Result.fail(401, 'Incorrect password');
+    else return Result.fail(404, 'User not found');
   }
 }

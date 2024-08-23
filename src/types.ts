@@ -10,15 +10,13 @@ import {
 export interface Database {
   user: UserTable;
   list: ListTable;
-  listItem: ListItemTable;
-  listUser: ListUserTable;
+  list_item: ListItemTable;
+  list_user: ListUserTable;
 }
 export interface UserTable {
-
   id: Generated<number>;
   nickname: string;
   password: string;
-  last_name: string | null;
   created_at: ColumnType<Date, string | undefined, never>;
 }
 
@@ -33,14 +31,14 @@ export interface ListTable {
   created_at: ColumnType<Date, string | undefined, never>;
 }
 
-export type Pet = Selectable<ListTable>;
-export type NewPet = Insertable<ListTable>;
-export type PetUpdate = Updateable<ListTable>;
+export type List = Selectable<ListTable>;
+export type NewList = Insertable<ListTable>;
+export type ListUpdate = Updateable<ListTable>;
 
 export interface ListItemTable {
   id: Generated<number>;
-  userId: number;
-  listId: number;
+  user_id: number;
+  list_id: number;
   name: string;
   quantity: number;
   unit: string;
@@ -54,8 +52,8 @@ export type ListItemUpdate = Updateable<ListItemTable>;
 
 export interface ListUserTable {
   id: Generated<number>;
-  userId: number;
-  listId: number;
+  user_id: number;
+  list_id: number;
   role: string;
 }
 
