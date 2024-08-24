@@ -57,14 +57,24 @@ export class ListItemController {
     if (!req.body.id) {
       return Result.fail(400, 'Bad Request');
     }
-    return this.listItemRepository.updateListItem(req.body.id, req.body);
+    if(!req.body.name && !req.body.unit && !req.body.quantity){
+      return Result.fail(400, 'Bad Request');
+    }
+    //check if there are errors here
+    const listItem ={
+      name: req.body.name,
+      unit: req.body.unit,
+      quantity: req.body.quantity,
+    }
+    return this.listItemRepository.updateListItem(req.body.id, listItem);
   }
 
   async getAllItemsInList(req: Request, res: Response) {
-    if (!req.body.list_id) {
+    const list_id = req.params.list_id;
+    if (!list_id) {
       return Result.fail(400, 'Bad Request');
     }
-    return this.listItemRepository.findItemsInList(req.body.list_id);
+    return this.listItemRepository.findItemsInList(parseInt(list_id));
 
 }
 }

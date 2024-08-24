@@ -52,7 +52,7 @@ export class ListUserController {
     const listUser = {
       user_id: req.body.user_id,
       list_id: req.body.list_id,
-      role: req.body.role,
+      role: Role.member,
     };
     return this.listUserRepository.createListUser(listUser);
   }

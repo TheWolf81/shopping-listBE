@@ -27,7 +27,14 @@ export class ListRepository {
   }
 
   async updateList(id: number, updateWith: ListUpdate) {
-    await db.updateTable('list').set(updateWith).where('id', '=', id).execute();
+    try {
+      await db.updateTable('list').set(updateWith).where('id', '=', id).execute();
+      return Result.success('List updated successfully');
+    }
+    catch (error: any) {
+      return Result.fail(400, error.message);
+    }
+  
   }
 
   async createList(list: NewList) {

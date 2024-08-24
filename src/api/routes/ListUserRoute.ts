@@ -9,7 +9,7 @@ export default (app: Router) => {
   app.use('/listUser', route);
 
   app.get(
-    '/listUser/listUsersInList',
+    '/listUsersInList',
     celebrate({
       body: Joi.object({
         list_id: Joi.number().required(),
@@ -27,7 +27,7 @@ export default (app: Router) => {
   );
 
   app.get(
-    '/listUser/listListsForUser',
+    '/listListsForUser',
     celebrate({
       body: Joi.object({
         user_id: Joi.number().required(),
@@ -45,12 +45,11 @@ export default (app: Router) => {
   );
 
   app.post(
-    '/listUser/addUserToList',
+    '/addUserToList',
     celebrate({
       body: Joi.object({
         user_id: Joi.number().required(),
         list_id: Joi.number().required(),
-        role: Joi.string().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -64,7 +63,7 @@ export default (app: Router) => {
     }
   );
   app.put(
-    '/listUser/updateListUserRole',
+    '/updateListUserRole',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
@@ -83,7 +82,7 @@ export default (app: Router) => {
   );
 
   app.delete(
-    '/listUser/removeUserFromList',
+    '/removeUserFromList',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),

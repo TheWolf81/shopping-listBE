@@ -2,14 +2,17 @@ import {Request, Response, NextFunction} from 'express';
 import {Result} from '../utils/Result';
 import {ListRepository} from '../repositories/ListRepository';
 import {ListUserRepository} from '../repositories/ListUserRepository';
+import {UserRepository} from '../repositories/UserRepository';	
 
 export class ListController {
   private listRepository: ListRepository;
   private listUserRepository: ListUserRepository;
+  private userRepository: UserRepository;
 
   constructor() {
     this.listRepository = new ListRepository();
     this.listUserRepository = new ListUserRepository();
+    this.userRepository = new UserRepository();
   }
 
   verifyParams(req: Request) {
@@ -21,8 +24,13 @@ export class ListController {
 
   async createList(req: Request) {
     if (!this.verifyParams(req)) {
-      return Result.fail(400, 'Parameters missing');
+      return Result.fail(400, 'Missing information');
     }
+    const user = await this.userRepository.findUserById(req.body.user_id);
+    if (!user) {
+      return Result.fail(404, 'User not found');
+    }
+
     const newList = {
       title: req.body.title,
       description: req.body.description,
@@ -47,6 +55,20 @@ export class ListController {
       return Result.fail(400, 'Bad Request');
     }
     return this.listRepository.deleteList(req.body.id);
+  }
+
+  async updateList(req: Request) {
+    if (!req.body.id) {
+      return Result.fail(400, 'Bad Request');
+    }
+    if (!req.body.title && !req.body.description) {
+      return Result.fail(400, 'Bad Request');
+    }
+    const updateWith = {
+      title: req.body.title,
+      description: req.body.description,
+    };
+    return this.listRepository.updateList(req.body.id, updateWith);
   }
 
   async getAllLists() {

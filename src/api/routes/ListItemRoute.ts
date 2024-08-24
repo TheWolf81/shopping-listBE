@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response, Router} from 'express';
 import {ListItemController} from '../../controller/ListItemController';
+import {celebrate, Joi} from 'celebrate';
 
 const ctrl = new ListItemController();
 
@@ -9,6 +10,15 @@ export default (app: Router) => {
 
   app.post(
     '/addListItem',
+    celebrate({
+      body: Joi.object({
+        user_id: Joi.number().required(),
+        list_id: Joi.number().required(),
+        name: Joi.string().required(),
+        unit: Joi.string().required(),
+        quantity: Joi.number().required(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.addListItem(req, res);
@@ -22,6 +32,11 @@ export default (app: Router) => {
 
   app.delete(
     '/removeListItem',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.removeListItem(req, res);
@@ -35,6 +50,12 @@ export default (app: Router) => {
 
   app.put(
     '/changeListItemStatus',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+        status: Joi.string().required(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.changeListItemStatus(req, res);
@@ -48,6 +69,11 @@ export default (app: Router) => {
 
   app.delete(
     '/deleteAllItemsInList',
+    celebrate({
+      body: Joi.object({
+        list_id: Joi.number().required(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.deleteAllItemsInList(req, res);
@@ -61,6 +87,14 @@ export default (app: Router) => {
 
   app.put(
     '/updateListItem',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+        name: Joi.string(),
+        unit: Joi.string(),
+        quantity: Joi.number(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.updateListItem(req, res);
@@ -73,7 +107,12 @@ export default (app: Router) => {
   );
 
   app.get(
-    '/getAllItemsInList',
+    '/getAllItemsInList/:list_id',
+    celebrate({
+      params: Joi.object({
+        list_id: Joi.number().required(),
+      }),
+    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.getAllItemsInList(req, res);

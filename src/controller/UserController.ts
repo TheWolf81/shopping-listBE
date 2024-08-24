@@ -35,10 +35,10 @@ export class UserController {
   }
 
   async deleteUser(req: Request, res: Response) {
-    if (!req.body.id) {
+    if (!req.body.id || !req.body.password) {
       return Result.fail(400, 'Bad Request');
     }
-    return this.userRepository.deleteUser(req.body.id);
+    return this.userRepository.deleteUser(req.body.id, req.body.password);
   }
 
   async getAllUsers() {

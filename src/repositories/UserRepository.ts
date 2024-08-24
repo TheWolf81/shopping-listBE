@@ -60,12 +60,18 @@ export class UserRepository {
     }
   }
 
-  async deleteUser(id: number) {
-    if (!(await this.findUserById(id))) {
-      return Result.fail(400, 'User does not exist');
-    }
-    await db.deleteFrom('user').where('id', '=', id).returningAll().execute();
-    return Result.success('User deleted successfully');
+  async deleteUser(id: number, password: string) {
+    //check if user exists, then check password
+    const user = await this.findUserById(id);
+    if (user && (await compare(password, user.password)))
+      try{
+      await db.deleteFrom('user').where('id', '=', id).execute();
+      return Result.success('User deleted successfully');
+      } catch (error: any) {
+        return Result.fail(500, 'Internal Server Error');
+      }
+    else if (user) return Result.fail(401, 'Incorrect password');
+    else return Result.fail(404, 'User not found');
   }
 
   async getAll() {
