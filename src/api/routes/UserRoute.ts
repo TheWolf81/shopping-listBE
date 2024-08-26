@@ -9,7 +9,6 @@ export default (app: Router) => {
   app.use('/user', route);
   route.post(
     '/create',
-
     celebrate({
       body: Joi.object({
         nickname: Joi.string().required(),
