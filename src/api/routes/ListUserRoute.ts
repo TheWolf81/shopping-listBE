@@ -7,8 +7,7 @@ const ctrl = new ListUserController();
 const route = Router();
 export default (app: Router) => {
   app.use('/listUser', route);
-
-  app.get(
+  route.get(
     '/listUsersInList',
     celebrate({
       body: Joi.object({
@@ -26,7 +25,7 @@ export default (app: Router) => {
     }
   );
 
-  app.get(
+  route.get(
     '/listListsForUser',
     celebrate({
       body: Joi.object({
@@ -44,12 +43,13 @@ export default (app: Router) => {
     }
   );
 
-  app.post(
+  route.post(
     '/addUserToList',
     celebrate({
       body: Joi.object({
         user_id: Joi.number().required(),
         list_id: Joi.number().required(),
+        current_user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -62,12 +62,13 @@ export default (app: Router) => {
       }
     }
   );
-  app.put(
+  route.put(
     '/updateListUserRole',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
         role: Joi.string().required(),
+        current_user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -81,11 +82,12 @@ export default (app: Router) => {
     }
   );
 
-  app.delete(
+  route.delete(
     '/removeUserFromList',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
+        current_user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {

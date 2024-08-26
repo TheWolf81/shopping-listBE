@@ -78,9 +78,9 @@ export default (app: Router) => {
   );
 
   route.get(
-    '/login',
+    '/login/:nickname/:password',
     celebrate({
-      body: Joi.object({
+      params: Joi.object({
         nickname: Joi.string().required(),
         password: Joi.string().required(),
       }),
@@ -88,7 +88,11 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.loginUser(req);
-        return res.status(result.code).send(result.message);
+        if(result.data){
+        return res.status(result.code).send(result.data);
+        } else {
+          return res.status(result.code).send(result.message);
+        }
       } catch (e) {
         console.log(e);
         return res.status(400).send('Bad Request');

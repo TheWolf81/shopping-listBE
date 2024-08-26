@@ -81,7 +81,7 @@ export class UserRepository {
   async loginUser(user: User) {
     const result = await this.findUserByNickname(user.nickname);
     if (result && (await compare(user.password, result.password)))
-      return Result.success('Login successful');
+      return Result.success(result);
     else if (result) return Result.fail(401, 'Incorrect password');
     else return Result.fail(404, 'User not found');
   }

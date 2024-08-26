@@ -1,6 +1,7 @@
 import {db} from '../database';
 import {Result} from '../utils/Result';
 import {ListUserUpdate, ListUser, NewListUser} from '../types';
+import { Role } from '../enum/Role';
 
 export class ListUserRepository {
   constructor() {}
@@ -13,12 +14,13 @@ export class ListUserRepository {
       .executeTakeFirst();
   }
 
-  async findListUserByUserId(userId: number) {
+  async findListUserByUserIdAndListId(userId: number, listId: number) {
     return await db
       .selectFrom('list_user')
       .where('user_id', '=', userId)
+      .where('list_id', '=', listId)
       .selectAll()
-      .execute();
+      .executeTakeFirst();
   }
 
   //intending to be used to show the users who share a list

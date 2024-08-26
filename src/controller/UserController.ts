@@ -63,9 +63,13 @@ export class UserController {
   }
 
   async loginUser(req: Request) {
-    if (!req.body.nickname || !req.body.password) {
+    if (!req.params.nickname || !req.params.password) {
       return Result.fail(400, 'Bad Request');
     }
-    return this.userRepository.loginUser(req.body as User);
+    const user = {
+      nickname: req.params.nickname,
+      password: req.params.password,
+    };
+    return this.userRepository.loginUser(user as User);
   }
 }

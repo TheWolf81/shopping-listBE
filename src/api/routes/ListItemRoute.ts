@@ -35,6 +35,7 @@ export default (app: Router) => {
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
+        user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -72,6 +73,7 @@ export default (app: Router) => {
     celebrate({
       body: Joi.object({
         list_id: Joi.number().required(),
+        user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -90,6 +92,7 @@ export default (app: Router) => {
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
+        user_id: Joi.number().required(),
         name: Joi.string(),
         unit: Joi.string(),
         quantity: Joi.number(),
