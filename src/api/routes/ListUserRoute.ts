@@ -26,14 +26,15 @@ export default (app: Router) => {
   );
 
   route.get(
-    '/listListsForUser',
+    '/listListsForUser/:user_id',
     celebrate({
-      body: Joi.object({
+      params: Joi.object({
         user_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
+        console.log(req.params.user_id);
         const result = await ctrl.listListsForUser(req, res);
         return res.status(result.code).send(result.data);
       } catch (e) {

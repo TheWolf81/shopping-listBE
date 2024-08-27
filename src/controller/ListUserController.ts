@@ -36,11 +36,11 @@ export class ListUserController {
   }
 
   async listListsForUser(req: Request, res: Response) {
-    if (!req.body.user_id) {
+    if (!req.params.user_id) {
       return Result.fail(400, 'Bad Request');
     }
     const lists = await this.listUserRepository.listListsForUser(
-      req.body.user_id
+      parseInt(req.params.user_id)
     );
     if (lists.length > 0) {
       return Result.success(lists);

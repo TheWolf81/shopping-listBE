@@ -10,13 +10,6 @@ export default (app: Router) => {
 
   route.post(
     '/create',
-    celebrate({
-      body: Joi.object({
-        title: Joi.string().required(),
-        description: Joi.string().optional(),
-        user_id: Joi.number().required(),
-      }),
-    }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.createList(req);
