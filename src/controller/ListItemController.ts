@@ -82,6 +82,10 @@ export class ListItemController {
   }
 
   async deleteAllItemsInList(req: Request, res: Response) {
+    var items = await this.listItemRepository.findItemsInList(req.body.list_id);
+    if(items.data.length == 0){
+      return Result.fail(400, 'No items to clear');
+    }
     if (!req.body.list_id) {
       return Result.fail(400, 'Bad Request');
     }
