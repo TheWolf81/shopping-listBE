@@ -22,6 +22,13 @@ export class ListController {
     return true;
   }
 
+  async verifyIfUserIsAdmin(user_id: number, list_id: number) {
+    const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
+    if (!user) {
+      return false;
+    }
+    return user.role === 'admin';
+  }
   async createList(req: Request) {
     if (!this.verifyParams(req)) {
       return Result.fail(400, 'Missing information');
@@ -54,6 +61,18 @@ export class ListController {
     if (!req.body.id) {
       return Result.fail(400, 'Bad Request');
     }
+    const user = await this.userRepository.findUserById(req.body.user_id);
+    if (!user) {
+      return Result.fail(404, 'User not found');
+    }
+    const list = await this.listRepository.findListById(req.body.id);
+    if (!list) {
+      return Result.fail(404, 'List not found');
+    }
+    if (!(await this.verifyIfUserIsAdmin(req.body.user_id, req.body.id))) {
+      return Result.fail(401, 'Unauthorized');
+    }
+
     return this.listRepository.deleteList(req.body.id);
   }
 
@@ -90,5 +109,9 @@ export class ListController {
       return Result.success(list);
     }
     return Result.fail(404, 'List not found');
+  }
+
+  getList(req: Request, res: Response) {
+    return this.listRepository.findListById(parseInt(req.params.id));
   }
 }

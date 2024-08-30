@@ -6,11 +6,16 @@ export class ListRepository {
   constructor() {}
 
   async findListById(id: number) {
-    return await db
+
+    const result = await db
       .selectFrom('list')
       .where('id', '=', id)
       .selectAll()
       .executeTakeFirst();
+      if(!result) {
+        return Result.fail(400, 'List does not exist');
+      }
+    return Result.success(result);
   }
 
   async findLists(criteria: Partial<List>) {

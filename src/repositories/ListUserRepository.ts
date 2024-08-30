@@ -40,6 +40,7 @@ export class ListUserRepository {
       .where('user_id', '=', userId)
       .innerJoin('list', 'list_user.list_id', 'list.id')
       .selectAll()
+      .orderBy('list.title', 'asc')
       .execute();
   }
 

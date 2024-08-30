@@ -1,6 +1,7 @@
 import {db} from '../database';
 import {Result} from '../utils/Result';
 import {ListItemUpdate, ListItem, NewListItem} from '../types';
+import {Status} from '../enum/Status';
 
 export class ListItemRepository {
   constructor() {}
@@ -15,12 +16,14 @@ export class ListItemRepository {
 
   async findItemsInList(listId: number) {
     try {
-      await db
+
+      const result = await db
         .selectFrom('list_item')
         .where('list_id', '=', listId)
         .selectAll()
+        .orderBy('name', 'asc')
         .execute();
-      return Result.success('ListItems found successfully');
+      return Result.success(result);
     } catch (error: any) {
       return Result.fail(400, error.message);
     }

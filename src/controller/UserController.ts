@@ -1,14 +1,20 @@
 import {Request, Response, NextFunction} from 'express';
 import {Result} from '../utils/Result';
 import {UserRepository} from '../repositories/UserRepository';
+import {ListRepository} from '../repositories/ListRepository';
+import { ListUserRepository } from '../repositories/ListUserRepository';
 import {User} from '../types';
 import {hash, compare} from 'bcrypt';
 
 export class UserController {
   private userRepository: UserRepository;
+  private listRepository: ListRepository;
+  private listUserRepository: ListUserRepository;
 
   constructor() {
     this.userRepository = new UserRepository();
+    this.listRepository = new ListRepository();
+    this.listUserRepository = new ListUserRepository();
   }
 
   verifyParams(req: Request) {
@@ -38,6 +44,14 @@ export class UserController {
     if (!req.body.id || !req.body.password) {
       return Result.fail(400, 'Bad Request');
     }
+    // Find all user lists and delete them
+    const lists = await this.listUserRepository.listListsForUser(req.body.id);
+    if (lists.length > 0) {
+      for (const list of lists) {
+        await this.listRepository.deleteList(list.list_id);
+      }
+    }
+
     return this.userRepository.deleteUser(req.body.id, req.body.password);
   }
 

@@ -34,7 +34,6 @@ export default (app: Router) => {
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        console.log(req.params.user_id);
         const result = await ctrl.listListsForUser(req, res);
         return res.status(result.code).send(result.data);
       } catch (e) {

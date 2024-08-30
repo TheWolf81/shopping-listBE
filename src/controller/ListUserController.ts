@@ -9,6 +9,7 @@ export class ListUserController {
   constructor() {
     this.listUserRepository = new ListUserRepository();
   }
+
   async verifyIfUserIsAdmin(user_id: number, list_id: number) {
     const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
     if (!user) {

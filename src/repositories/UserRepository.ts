@@ -61,7 +61,6 @@ export class UserRepository {
   }
 
   async deleteUser(id: number, password: string) {
-    //check if user exists, then check password
     const user = await this.findUserById(id);
     if (user && (await compare(password, user.password)))
       try{
@@ -75,7 +74,7 @@ export class UserRepository {
   }
 
   async getAll() {
-    return await db.selectFrom('user').selectAll().execute();
+    return await db.selectFrom('user').selectAll().orderBy('nickname', 'asc').execute();
   }
 
   async loginUser(user: User) {

@@ -8,7 +8,7 @@ const route = Router();
 export default (app: Router) => {
   app.use('/listItem', route);
 
-  app.post(
+  route.post(
     '/addListItem',
     celebrate({
       body: Joi.object({
@@ -30,7 +30,7 @@ export default (app: Router) => {
     }
   );
 
-  app.delete(
+  route.delete(
     '/removeListItem',
     celebrate({
       body: Joi.object({
@@ -49,7 +49,7 @@ export default (app: Router) => {
     }
   );
 
-  app.put(
+  route.put(
     '/changeListItemStatus',
     celebrate({
       body: Joi.object({
@@ -68,7 +68,7 @@ export default (app: Router) => {
     }
   );
 
-  app.delete(
+  route.delete(
     '/deleteAllItemsInList',
     celebrate({
       body: Joi.object({
@@ -87,7 +87,7 @@ export default (app: Router) => {
     }
   );
 
-  app.put(
+  route.put(
     '/updateListItem',
     celebrate({
       body: Joi.object({
@@ -109,7 +109,7 @@ export default (app: Router) => {
     }
   );
 
-  app.get(
+  route.get(
     '/getAllItemsInList/:list_id',
     celebrate({
       params: Joi.object({
@@ -119,6 +119,9 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await ctrl.getAllItemsInList(req, res);
+        if(result.code === 200){
+        return res.status(result.code).send(result.data);
+        }
         return res.status(result.code).send(result.message);
       } catch (e) {
         console.log(e);
