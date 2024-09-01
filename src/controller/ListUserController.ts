@@ -24,11 +24,11 @@ export class ListUserController {
   }
 
   async listUsersInList(req: Request, res: Response) {
-    if (!req.body.list_id) {
+    if (!req.params.list_id) {
       return Result.fail(400, 'Bad Request');
     }
     const users = await this.listUserRepository.listUsersInList(
-      req.body.list_id
+      parseInt(req.params.list_id)
     );
     if (users.length > 0) {
       return Result.success(users);
@@ -49,16 +49,24 @@ export class ListUserController {
     return Result.fail(404, 'No lists found');
   }
 
-  async updateListUserRole(req: Request, res: Response) {
-    if (!req.body.id || !req.body.role) {
+  async updateListUserRole(req: Request, res: Response, role: Role) {
+    if (!req.body.id || !role) {
       return Result.fail(400, 'Bad Request');
     }
     if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
       return Result.fail(401, 'Unauthorized');
     }
+    var currentUserRole = await this.listUserRepository.findListUserById(req.body.id).then((result) => {
+      if(result){
+      return result.role}
+      return null;
+    });
+    if(currentUserRole === role){
+      return Result.fail(409, 'User already has this role');
+    }
     return this.listUserRepository.updateListUserRole(
       req.body.id,
-      req.body.role
+      role
     );
   }
 
@@ -66,9 +74,14 @@ export class ListUserController {
     if (!req.body.user_id || !req.body.list_id) {
       return Result.fail(400, 'Bad Request');
     }
+    if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
+      return Result.fail(401, 'Unauthorized: not an admin');
+    }
     if(await this.verifyIfUserIsMember(req.body.user_id, req.body.list_id)){
       return Result.fail(409, 'User is already in list');
     }
+
+
     const listUser = {
       user_id: req.body.user_id,
       list_id: req.body.list_id,
@@ -82,7 +95,7 @@ export class ListUserController {
       return Result.fail(400, 'Bad Request');
     }
     if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
-      return Result.fail(401, 'Unauthorized');
+      return Result.fail(401, 'Unauthorized: not an admin');
     }
     return this.listUserRepository.deleteListUser(req.body.id);
   }

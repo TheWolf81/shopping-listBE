@@ -1,6 +1,7 @@
 import {NextFunction, Request, Response, Router} from 'express';
 import {celebrate, Joi} from 'celebrate';
 import {ListUserController} from '../../controller/ListUserController';
+import { Role } from '../../enum/Role';
 
 const ctrl = new ListUserController();
 
@@ -8,9 +9,9 @@ const route = Router();
 export default (app: Router) => {
   app.use('/listUser', route);
   route.get(
-    '/listUsersInList',
+    '/listUsersInList/:list_id',
     celebrate({
-      body: Joi.object({
+      params: Joi.object({
         list_id: Joi.number().required(),
       }),
     }),
@@ -73,7 +74,7 @@ export default (app: Router) => {
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const result = await ctrl.updateListUserRole(req, res);
+        const result = await ctrl.updateListUserRole(req, res, req.body.role);
         return res.status(result.code).send(result.message);
       } catch (e) {
         console.log(e);
@@ -82,11 +83,52 @@ export default (app: Router) => {
     }
   );
 
+  route.put(
+    '/makeListUserAdmin',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+        list_id: Joi.number().required(),
+        current_user_id: Joi.number().required(),
+      }),
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const result = await ctrl.updateListUserRole(req, res, Role.admin);
+        return res.status(result.code).send(result.message);
+      } catch (e) {
+        console.log(e);
+        return res.status(400).send('Bad Request');
+      }
+    }
+  )
+
+  route.put(
+    '/makeListUserMember',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+        list_id: Joi.number().required(),
+        current_user_id: Joi.number().required(),
+      }),
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const result = await ctrl.updateListUserRole(req, res, Role.member);
+        return res.status(result.code).send(result.message);
+      } catch (e) {
+        console.log(e);
+        return res.status(400).send('Bad Request');
+      }
+    }
+  )
+
   route.delete(
     '/removeUserFromList',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
+        list_id: Joi.number().required(),
         current_user_id: Joi.number().required(),
       }),
     }),

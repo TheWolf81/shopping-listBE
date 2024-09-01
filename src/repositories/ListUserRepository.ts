@@ -27,9 +27,17 @@ export class ListUserRepository {
   async listUsersInList(listId: number) {
     return await db
       .selectFrom('list_user')
-      .where('list_id', '=', listId)
+      .where('list_user.list_id', '=', listId)
       .innerJoin('user', 'list_user.user_id', 'user.id')
-      .selectAll()
+      .select(
+        ['list_user.id as id',
+        'list_user.user_id',
+        'list_user.list_id',
+        'list_user.role',
+        'user.nickname'
+        ]
+      )
+      .orderBy('user.nickname', 'asc')
       .execute();
   }
 
@@ -39,7 +47,7 @@ export class ListUserRepository {
       .selectFrom('list_user')
       .where('user_id', '=', userId)
       .innerJoin('list', 'list_user.list_id', 'list.id')
-      .selectAll()
+      .select(['list_user.id as id', 'list_user.user_id', 'list_user.list_id', 'list_user.role', 'list.title', 'list.description'])
       .orderBy('list.title', 'asc')
       .execute();
   }

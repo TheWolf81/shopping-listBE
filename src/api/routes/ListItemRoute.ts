@@ -36,6 +36,7 @@ export default (app: Router) => {
       body: Joi.object({
         id: Joi.number().required(),
         user_id: Joi.number().required(),
+        list_id: Joi.number().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -50,16 +51,15 @@ export default (app: Router) => {
   );
 
   route.put(
-    '/changeListItemStatus',
+    '/toggleListItemStatus',
     celebrate({
       body: Joi.object({
         id: Joi.number().required(),
-        status: Joi.string().required(),
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const result = await ctrl.changeListItemStatus(req, res);
+        const result = await ctrl.toggleListItemStatus(req, res);
         return res.status(result.code).send(result.message);
       } catch (e) {
         console.log(e);

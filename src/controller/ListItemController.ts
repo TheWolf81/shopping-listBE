@@ -67,18 +67,27 @@ export class ListItemController {
     if((await this.verifyIfUserMadeListing(req.body.user_id, req.body.id)) || (await this.verifyIfUserIsAdmin(req.body.user_id, req.body.list_id))){
       return this.listItemRepository.deleteListItem(req.body.id);
     }
-    return Result.fail(401, 'Unauthorized');
-    
+    return Result.fail(401, 'Unauthorized: not the creator of this listing');
   }
   
-  async changeListItemStatus(req: Request, res: Response) {
-    if (!req.body.id || !req.body.status) {
+  async toggleListItemStatus(req: Request, res: Response) {
+    if (!req.body.id) {
       return Result.fail(400, 'Bad Request');
     }
+    var listItem = await this.listItemRepository.findListItemById(req.body.id);
+    if(!listItem){
+      return Result.fail(404, 'Item not found');
+    }
+    if(listItem.status === Status.listed){
     return this.listItemRepository.changeItemStatus(
       req.body.id,
-      req.body.status
+      Status.acquired
     );
+  }
+  return this.listItemRepository.changeItemStatus(
+    req.body.id,
+    Status.listed
+  );
   }
 
   async deleteAllItemsInList(req: Request, res: Response) {
