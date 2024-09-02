@@ -13,12 +13,12 @@ export class ListItemController {
     this.listUserRepository = new ListUserRepository();
   }
 
-  async verifyIfUserIsAdmin(user_id: number, list_id: number) {
+  async verifyIfUserIsAdminOrOwner(user_id: number, list_id: number) {
     const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
     if (!user) {
       return false;
     }
-    return user.role === 'admin';
+    return user.role === 'admin' || user.role === 'owner';
   }
 
   async verifyIfUserIsMember(user_id: number, list_id: number) {

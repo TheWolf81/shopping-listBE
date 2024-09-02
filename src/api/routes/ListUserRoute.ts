@@ -142,4 +142,22 @@ export default (app: Router) => {
       }
     }
   );
+
+  route.get(
+    '/getListUser/:user_id/:list_id',
+    celebrate({
+      params: Joi.object({
+        user_id: Joi.number().required(),
+        list_id: Joi.number().required(),
+      }),
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const result = await ctrl.getListUser(req, res);
+        return res.status(result.code).send(result.data);
+      } catch (e) {
+        return res.status(400).send('Bad Request');
+      }
+    }
+  );
 };

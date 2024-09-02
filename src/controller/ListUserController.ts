@@ -10,12 +10,12 @@ export class ListUserController {
     this.listUserRepository = new ListUserRepository();
   }
 
-  async verifyIfUserIsAdmin(user_id: number, list_id: number) {
+  async verifyIfUserIsAdminOrOwner(user_id: number, list_id: number) {
     const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
     if (!user) {
       return false;
     }
-    return user.role === 'admin';
+    return user.role === 'admin' || user.role === 'owner';
   }
 
   async verifyIfUserIsMember(user_id: number, list_id: number) {
@@ -53,8 +53,8 @@ export class ListUserController {
     if (!req.body.id || !role) {
       return Result.fail(400, 'Bad Request');
     }
-    if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
-      return Result.fail(401, 'Unauthorized');
+    if(!(await this.verifyIfUserIsAdminOrOwner(req.body.current_user_id, req.body.list_id))){
+      return Result.fail(401, 'Unauthorized: not an admin');
     }
     var currentUserRole = await this.listUserRepository.findListUserById(req.body.id).then((result) => {
       if(result){
@@ -74,9 +74,7 @@ export class ListUserController {
     if (!req.body.user_id || !req.body.list_id) {
       return Result.fail(400, 'Bad Request');
     }
-    if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
-      return Result.fail(401, 'Unauthorized: not an admin');
-    }
+
     if(await this.verifyIfUserIsMember(req.body.user_id, req.body.list_id)){
       return Result.fail(409, 'User is already in list');
     }
@@ -94,9 +92,32 @@ export class ListUserController {
     if (!req.body.id) {
       return Result.fail(400, 'Bad Request');
     }
-    if(!(await this.verifyIfUserIsAdmin(req.body.current_user_id, req.body.list_id))){
+    const listUser = await this.listUserRepository.findListUserById(req.body.id);
+    if (!listUser) {
+      return Result.fail(404, 'User not found');
+    }
+    const id = listUser.id;
+    if(!(await this.verifyIfUserIsAdminOrOwner(req.body.current_user_id, req.body.list_id)) && req.body.current_user_id !== listUser.user_id){
       return Result.fail(401, 'Unauthorized: not an admin');
     }
     return this.listUserRepository.deleteListUser(req.body.id);
   }
+
+  async getListUser(req: Request, res: Response){
+    if (!req.params.user_id) {
+      return Result.fail(400, 'Bad Request');
+    }
+    if(!req.params.list_id){
+      return Result.fail(400, 'Bad Request');
+    }
+    const listUser = await this.listUserRepository.findListUserByUserIdAndListId(
+      parseInt(req.params.user_id),
+      parseInt(req.params.list_id)
+    );
+    if (listUser) {
+      return Result.success(listUser);
+    }
+    return Result.fail(404, 'User not found in list');
+  }
+
 }

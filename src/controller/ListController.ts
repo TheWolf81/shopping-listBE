@@ -3,6 +3,7 @@ import {Result} from '../utils/Result';
 import {ListRepository} from '../repositories/ListRepository';
 import {ListUserRepository} from '../repositories/ListUserRepository';
 import {UserRepository} from '../repositories/UserRepository';	
+import {Role} from '../enum/Role';
 
 export class ListController {
   private listRepository: ListRepository;
@@ -22,13 +23,22 @@ export class ListController {
     return true;
   }
 
-  async verifyIfUserIsAdmin(user_id: number, list_id: number) {
+  async verifyIfUserIsAdminOrOwner(user_id: number, list_id: number) {
     const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
     if (!user) {
       return false;
     }
-    return user.role === 'admin';
+    return user.role === 'admin' || user.role === 'owner';
   }
+
+  async verifyIfUserIsOwner(user_id: number, list_id: number) {
+    const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
+    if (!user) {
+      return false;
+    }
+    return user.role === 'owner';
+  }
+
   async createList(req: Request) {
     if (!this.verifyParams(req)) {
       return Result.fail(400, 'Missing information');
@@ -48,7 +58,7 @@ export class ListController {
     const listUser = {
       user_id: req.body.user_id,
       list_id: res1.data.id,
-      role: 'admin',
+      role: Role.owner,
     };
     const res2 = await this.listUserRepository.createListUser(listUser);
     if (Result.isSuccessful(res1) && Result.isSuccessful(res2)) {
@@ -69,8 +79,8 @@ export class ListController {
     if (!list) {
       return Result.fail(404, 'List not found');
     }
-    if (!(await this.verifyIfUserIsAdmin(req.body.user_id, req.body.id))) {
-      return Result.fail(401, 'Unauthorized');
+    if (!(await this.verifyIfUserIsOwner(req.body.user_id, req.body.id))) {
+      return Result.fail(401, 'Unauthorized: not the owner of this list');
     }
 
     return this.listRepository.deleteList(req.body.id);
