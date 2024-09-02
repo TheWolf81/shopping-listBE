@@ -64,7 +64,7 @@ export class ListItemController {
       return Result.fail(400, 'Bad Request');
     }
     //check if user didnt make the listing and isnt admin
-    if((await this.verifyIfUserMadeListing(req.body.user_id, req.body.id)) || (await this.verifyIfUserIsAdmin(req.body.user_id, req.body.list_id))){
+    if((await this.verifyIfUserMadeListing(req.body.user_id, req.body.id)) || (await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id))){
       return this.listItemRepository.deleteListItem(req.body.id);
     }
     return Result.fail(401, 'Unauthorized: not the creator of this listing');
@@ -98,7 +98,7 @@ export class ListItemController {
     if (!req.body.list_id) {
       return Result.fail(400, 'Bad Request');
     }
-    if(!(await this.verifyIfUserIsAdmin(req.body.user_id, req.body.list_id))){
+    if(!(await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id))){
       return Result.fail(401, 'Unauthorized');
     }
     return this.listItemRepository.deleteAllItemsFromList(req.body.list_id);
