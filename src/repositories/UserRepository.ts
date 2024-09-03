@@ -67,6 +67,7 @@ export class UserRepository {
       await db.deleteFrom('user').where('id', '=', id).execute();
       return Result.success('User deleted successfully');
       } catch (error: any) {
+        console.log(error);
         return Result.fail(500, 'Internal Server Error');
       }
     else if (user) return Result.fail(401, 'Incorrect password');

@@ -76,4 +76,5 @@ export class ListItemRepository {
     await db.deleteFrom('list_item').where('list_id', '=', listId).execute();
     return Result.success('All ListItems deleted successfully');
   }
+
 }

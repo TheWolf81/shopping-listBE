@@ -28,7 +28,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable('list_item')
     .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('user_id', 'integer', col =>
-      col.references('user.id').onDelete('cascade').notNull()
+      col.references('user.id').onDelete('set null')
     )
     .addColumn('list_id', 'integer', col =>
       col.references('list.id').onDelete('cascade').notNull()

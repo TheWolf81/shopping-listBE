@@ -3,6 +3,7 @@ import {Result} from '../utils/Result';
 import {UserRepository} from '../repositories/UserRepository';
 import {ListRepository} from '../repositories/ListRepository';
 import { ListUserRepository } from '../repositories/ListUserRepository';
+import { ListItemRepository } from '../repositories/ListItemRepository';
 import {User} from '../types';
 import {hash, compare} from 'bcrypt';
 
@@ -44,11 +45,11 @@ export class UserController {
     if (!req.body.id || !req.body.password) {
       return Result.fail(400, 'Bad Request');
     }
-    // Find all user lists and delete them
-    const lists = await this.listUserRepository.listListsForUser(req.body.id);
+
+    const lists = await this.listUserRepository.findOwnedListsForUser(req.body.id);
     if (lists.length > 0) {
       for (const list of lists) {
-        await this.listRepository.deleteList(list.list_id);
+        await this.listRepository.deleteList(list.id);
       }
     }
 

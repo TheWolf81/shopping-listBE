@@ -23,6 +23,15 @@ export class ListUserRepository {
       .executeTakeFirst();
   }
 
+  async findOwnedListsForUser(userId: number) {
+    return await db
+      .selectFrom('list_user')
+      .where('user_id', '=', userId)
+      .where('role', '=', Role.owner)
+      .innerJoin('list', 'list_user.list_id', 'list.id')
+      .select('list_user.list_id as id')
+      .execute();
+  }
   //intending to be used to show the users who share a list
   async listUsersInList(listId: number) {
     return await db
