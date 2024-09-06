@@ -90,8 +90,8 @@ export class ListItemController {
   );
   }
 
-  async deleteAllItemsInList(req: Request, res: Response) {
-    var items = await this.listItemRepository.findItemsInList(req.body.list_id);
+  async deleteCheckedItemsInList(req: Request, res: Response) {
+    var items = await this.listItemRepository.findCheckedItemsInList(req.body.list_id);
     if(items.data.length == 0){
       return Result.fail(400, 'No items to clear');
     }
@@ -101,7 +101,7 @@ export class ListItemController {
     if(!(await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id))){
       return Result.fail(401, 'Unauthorized');
     }
-    return this.listItemRepository.deleteAllItemsFromList(req.body.list_id);
+    return this.listItemRepository.deleteCheckedItemsFromList(req.body.list_id);
   }
 
   async updateListItem(req: Request, res: Response) {

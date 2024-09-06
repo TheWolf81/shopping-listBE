@@ -78,7 +78,7 @@ export default (app: Router) => {
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const result = await ctrl.deleteAllItemsInList(req, res);
+        const result = await ctrl.deleteCheckedItemsInList(req, res);
         return res.status(result.code).send(result.message);
       } catch (e) {
         console.log(e);
