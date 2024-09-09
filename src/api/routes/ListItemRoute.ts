@@ -93,6 +93,7 @@ export default (app: Router) => {
       body: Joi.object({
         id: Joi.number().required(),
         user_id: Joi.number().required(),
+        list_id: Joi.number().required(),
         name: Joi.string(),
         unit: Joi.string(),
         quantity: Joi.number(),

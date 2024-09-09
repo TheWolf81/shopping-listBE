@@ -15,6 +15,7 @@ export class ListItemController {
 
   async verifyIfUserIsAdminOrOwner(user_id: number, list_id: number) {
     const user = await this.listUserRepository.findListUserByUserIdAndListId(user_id, list_id);
+    console.log(user);
     if (!user) {
       return false;
     }
@@ -111,6 +112,11 @@ export class ListItemController {
     if(!req.body.name && !req.body.unit && !req.body.quantity){
       return Result.fail(400, 'Bad Request');
     }
+    console.log(req.body);
+    const madeListing = await this.verifyIfUserMadeListing(req.body.user_id, req.body.id);
+    const isAdminOrOwner = await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id);
+    console.log(madeListing);
+    console.log(isAdminOrOwner);
     if((await this.verifyIfUserMadeListing(req.body.user_id, req.body.id)) || (await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id))){
       const listItem ={
         name: req.body.name,
