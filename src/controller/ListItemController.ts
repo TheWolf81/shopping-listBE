@@ -111,16 +111,16 @@ export class ListItemController {
     if(!req.body.name && !req.body.unit && !req.body.quantity){
       return Result.fail(400, 'Bad Request');
     }
-    if(!(await this.verifyIfUserMadeListing(req.body.user_id, req.body.id))){
-      return Result.fail(401, 'Unauthorized');
+    if((await this.verifyIfUserMadeListing(req.body.user_id, req.body.id)) || (await this.verifyIfUserIsAdminOrOwner(req.body.user_id, req.body.list_id))){
+      const listItem ={
+        name: req.body.name,
+        unit: req.body.unit,
+        quantity: req.body.quantity,
+      }
+      return this.listItemRepository.updateListItem(req.body.id, listItem);
     }
-    //check if there are errors here
-    const listItem ={
-      name: req.body.name,
-      unit: req.body.unit,
-      quantity: req.body.quantity,
-    }
-    return this.listItemRepository.updateListItem(req.body.id, listItem);
+    return Result.fail(401, 'Unauthorized: not the creator of this listing');
+    
   }
 
   async getAllItemsInList(req: Request, res: Response) {
@@ -129,6 +129,14 @@ export class ListItemController {
       return Result.fail(400, 'Bad Request');
     }
     return this.listItemRepository.findItemsInList(parseInt(list_id));
-
-}
+  }
+  
+  async getItemById(req: Request, res: Response) {
+    const id = req.params.id;
+    if (!id) {
+      return Result.fail(400, 'Bad Request');
+    }
+    const result = await this.listItemRepository.findListItemById(parseInt(id));
+    return Result.success(result);
+  }
 }

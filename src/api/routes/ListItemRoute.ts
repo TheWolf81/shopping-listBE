@@ -129,4 +129,27 @@ export default (app: Router) => {
       }
     }
   );
+
+  route.get('/getItemById/:id',
+    celebrate({
+      params: Joi.object({
+        id: Joi.number().required(),
+      }),
+    }),
+   async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const result = await ctrl.getItemById(req, res);
+        if(!result){
+          return res.status(404).send('Not Found');
+        }
+        if(result.code === 200){
+        return res.status(result.code).send(result.data);
+        }
+        return res.status(result.code).send(result.message);
+      } catch (e) {
+        console.log(e);
+        return res.status(400).send('Bad Request');
+      }
+  });
+
 };
