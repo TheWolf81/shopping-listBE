@@ -59,13 +59,6 @@ export default (app: Router) => {
   );
 
   route.put('/edit',
-    celebrate({
-      body: Joi.object({
-        id: Joi.number().required(),
-        title: Joi.string().required(),
-        description: Joi.string()
-      }),
-    }),
     async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await ctrl.updateList(req);
