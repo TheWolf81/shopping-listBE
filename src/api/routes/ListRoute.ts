@@ -57,4 +57,23 @@ export default (app: Router) => {
       }
     }
   );
+
+  route.put('/edit',
+    celebrate({
+      body: Joi.object({
+        id: Joi.number().required(),
+        title: Joi.string().required(),
+        description: Joi.string().required(),
+      }),
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await ctrl.updateList(req);
+      return res.status(result.code).send(result.message);
+    } catch (e) {
+      console.log(e);
+      return res.status(400).send('Bad Request');
+    }
+  }
+  );
 };
